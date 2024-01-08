@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Main St Theatre",
+    "address": "1 Main St, Sydney NSW 2000",
+    "maxCapacity": 1000
+  },
+  {
+    "id": 2,
+    "name": "Big Theatre",
+    "address": "1 Long St Melbourne VIC 3000",
+    "maxCapacity": 1000
+  },
+  {
+    "name": "New Venue",
+    "address": "123 New St, New City",
+    "maxCapacity": 500,
+    "id": 3
+  },
+  {
+    "name": "New Venue",
+    "address": "123 New St, New City",
+    "maxCapacity": 500,
+    "id": 4
+  }
+]
