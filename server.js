@@ -1,60 +1,10 @@
 const fastify = require('fastify')({ logger: true });
-
+const { venueSchema, eventSchema } = require('./schemas');
 const { ObjectId } = require('mongodb');
 const { MongoClient } = require('mongodb');
 const url = "mongodb+srv://test:test@cluster0.64toza8.mongodb.net/?retryWrites=true&w=majority";
 const mongoClient = new MongoClient(url);
 let db;
-
-const venueSchema = {
-    body: {
-        type: 'object',
-        required: ['name', 'address', 'maxCapacity'],
-        additionalProperties: false,
-        properties: {
-            name: { type: 'string', minLength: 1 },
-            address: { type: 'string', minLength: 1 },
-            maxCapacity: { type: 'integer', minimum: 1 }
-        }
-    },
-    response: {
-        201: {
-            type: 'object',
-            properties: {
-                _id: { type: 'string' },
-                name: { type: 'string' },
-                address: { type: 'string' },
-                maxCapacity: { type: 'integer' }
-            }
-        }
-    }
-};
-
-const eventSchema = {
-    body: {
-        type: 'object',
-        required: ['venueID', 'name', 'dateTime', 'ticketPrice'],
-        additionalProperties: false,
-        properties: {
-            venueID: { type: 'string', pattern: "^[0-9a-fA-F]{24}$" },
-            name: { type: 'string', minLength: 1 },
-            dateTime: { type: 'string', minLength: 1 },
-            ticketPrice: { type: 'number', minimum: 0 }
-        }
-    },
-    response: {
-        201: {
-            type: 'object',
-            properties: {
-                _id: { type: 'string' },
-                venueID: { type: 'string' },
-                name: { type: 'string' },
-                dateTime: { type: 'string' },
-                ticketPrice: { type: 'number' }
-            }
-        }
-    }
-};
 
 mongoClient.connect(err => {
     if (err) {
@@ -85,9 +35,9 @@ fastify.get('/venues/:venueID', async (request, reply) => {
     }
     const venue = await db.collection('venues').findOne({ _id: venueID });
 
-    if (!venue) {
+    if (!venue)
         return reply.code(404).send({ message: "Venue not found" });
-    }
+
     return venue;
 });
 
@@ -101,9 +51,9 @@ fastify.get('/events/:eventID', async (request, reply) => {
     }
     const event = await db.collection('events').findOne({ _id: eventID });
 
-    if (!event) {
+    if (!event)
         return reply.code(404).send({ message: "Event not found" });
-    }
+
     return event;
 });
 
@@ -116,9 +66,9 @@ fastify.get('/venues/:venueID/events', async (request, reply) => {
         return reply.code(400).send({ message: "Invalid venue ID format" });
     }
     const events = await db.collection('events').find({ venueID: venueID }).toArray();
-    if (!events) {
+    if (!events)
         return reply.code(404).send({ message: "No events found for this venue" });
-    }
+
     return events;
 });
 
@@ -137,9 +87,9 @@ fastify.get('/venues/:venueID/events/:eventID', async (request, reply) => {
         { projection: { events: { $elemMatch: { _id: eventID } } } }
     );
 
-    if (!venue || !venue.events || venue.events.length === 0) {
+    if (!venue || !venue.events || venue.events.length === 0)
         return reply.code(404).send({ message: "Event not found" });
-    }
+
     return venue.events[0];
 });
 
@@ -161,9 +111,11 @@ fastify.post('/events', { schema: eventSchema }, async (request, reply) => {
         return reply.code(400).send({ message: "Invalid venue ID format" });
     }
     const venueExists = await db.collection('venues').findOne({ _id: venueObjectId });
+
     if (!venueExists) {
         return reply.code(404).send({ message: "Venue not found" });
     }
+
     const newEvent = {
         venueID: venueObjectId,
         name,
@@ -181,28 +133,21 @@ fastify.delete('/venues/:venueID', async (request, reply) => {
     const venueID = new ObjectId(request.params.venueID);
     const venueResult = await db.collection('venues').deleteOne({ _id: venueID });
 
-    if (venueResult.deletedCount === 0) {
+    if (venueResult.deletedCount === 0)
         return reply.code(404).send({ message: "Venue not found" });
-    }
 
     await db.collection('events').deleteMany({ venueID: venueID });
     return { message: `Venue with ID ${venueId} has been removed.` };
 });
 
-fastify.delete('/venues/:venueID/events/:eventID', async (request, reply) => {
-    const venueID = new ObjectId(request.params.venueID);
+fastify.delete('/events/:eventID', async (request, reply) => {
     const eventID = new ObjectId(request.params.eventID);
-    const venueExists = await db.collection('venues').findOne({ _id: venueID });
 
-    if (!venueExists) {
-        return reply.code(404).send({ message: "Venue not found" });
-    }
-
-    const eventResult = await db.collection('events').deleteOne({ _id: eventID, venueID: venueID });
-    if (eventResult.deletedCount === 0) {
+    const eventResult = await db.collection('events').deleteOne({ _id: eventID });
+    if (eventResult.deletedCount === 0)
         return reply.code(404).send({ message: "Event not found" });
-    }
-    return { message: `Event with ID ${eventID} has been removed from venue ${venueID}.` };
+
+    return { message: `Event with ID ${eventID} has been removed.` };
 });
 
 const start = async () => {
