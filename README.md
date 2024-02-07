@@ -5,6 +5,21 @@ This ticketing project uses both mongoDB and local JSON files.
 
 MongoDB string: mongodb+srv://test:test@cluster0.64toza8.mongodb.net/
 
+Template venue post body:
+{
+    "name": "Test",
+    "maxCapacity": 0,
+    "address": "Test Address"
+}
+
+Template event post body:
+{
+    "venueID": "000000000000000000000000",
+    "name": "Test",
+    "dateTime": "00/00/0000",
+    "ticketPrice": 0
+}
+
 Endpoint commands for mongoDB:
 - GET http://localhost:3001/venues - Get venues
 - GET http://localhost:3001/events - Get events
