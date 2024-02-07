@@ -3,6 +3,8 @@ This ticketing project uses both mongoDB and local JSON files.
 - node server.js for mongoDB
 - node demoserver.js for local JSON files
 
+MongoDB string: mongodb+srv://test:test@cluster0.64toza8.mongodb.net/
+
 Endpoint commands for mongoDB:
 - GET http://localhost:3001/venues - Get venues
 - GET http://localhost:3001/events - Get events
